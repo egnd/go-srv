@@ -9,7 +9,7 @@ logs:
     level: level
     msg: msg
     time: ts
-server:
+gofiber:
   debug: false
   disabled: false
   port: 8080

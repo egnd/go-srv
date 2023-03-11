@@ -1,62 +1,13 @@
 package gofiber
 
 import (
-	"context"
 	"errors"
-	"fmt"
 
-	"github.com/go-logr/logr"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/favicon"
-	"github.com/gofiber/fiber/v2/middleware/monitor"
-	"github.com/gofiber/fiber/v2/middleware/pprof"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/spf13/viper"
 
 	"github.com/egnd/go-srv/internal/ctxtools"
-	"github.com/egnd/go-srv/internal/gofiber/handlers"
-	"github.com/egnd/go-srv/internal/gofiber/middlewares"
 )
-
-type goFiber struct {
-	debug    bool
-	disabled bool
-	ctx      context.Context
-	cfg      *viper.Viper
-	logger   logr.Logger
-	server   *fiber.App
-}
-
-func New(ctx context.Context, cfg *viper.Viper, logger logr.Logger) *goFiber {
-	return (&goFiber{
-		ctx:      ctx,
-		cfg:      cfg,
-		logger:   logger,
-		debug:    cfg.GetBool("debug"),
-		disabled: cfg.GetBool("disabled"),
-	}).initServer().setMiddlewares().setHandlers()
-}
-
-func (srv *goFiber) Start() error {
-	if srv.disabled {
-		srv.logger.Info("is disabled")
-
-		return nil
-	}
-
-	srv.logger.Info("starting...", "port", srv.cfg.GetInt("port"))
-
-	return srv.server.Listen(fmt.Sprintf(":%d", srv.cfg.GetInt("port")))
-}
-
-func (srv *goFiber) Stop() error {
-	if srv.disabled {
-		return nil
-	}
-
-	return srv.server.Shutdown()
-}
 
 func (srv *goFiber) initServer() *goFiber {
 	srv.server = fiber.New(fiber.Config{
@@ -100,28 +51,4 @@ func (srv *goFiber) errorHandler(ctx *fiber.Ctx, err error) error {
 	ctx.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
 
 	return ctx.SendStatus(code)
-}
-
-func (srv *goFiber) setMiddlewares() *goFiber {
-	srv.server.Use(
-		favicon.New(),
-		pprof.New(),
-		middlewares.RequestID(),
-		middlewares.Logging(srv.logger),
-		recover.New(recover.Config{EnableStackTrace: srv.debug}),
-	)
-
-	return srv
-}
-
-func (srv *goFiber) setHandlers() *goFiber {
-	srv.server.Get("/", handlers.HelloWorld())
-	// @TODO: /live
-	// @TODO: /metrics
-
-	if srv.debug {
-		srv.server.Get("/debug/dashboard", monitor.New(monitor.Config{Title: srv.server.Config().AppName}))
-	}
-
-	return srv
 }
