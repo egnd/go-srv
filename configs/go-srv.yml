@@ -1,0 +1,37 @@
+logs:
+  level: info
+  time_format: 2006-01-02T15:04:05Z07:00
+  duration_unit: 1s
+  caller: false
+  pretty: false
+  colors: false
+  fields_names:
+    level: level
+    msg: msg
+    time: ts
+server:
+  debug: false
+  disabled: false
+  port: 8080
+  concurrency: 0
+  prefork: false
+  reduce_mem_usage: false
+  routing:
+    case_sensitive: true
+    strict: true
+  startup_msg: false
+  print_routes: false
+  app_name: go-srv
+  server_header: go-srv
+  timeouts:
+    read: 30s
+    write: 30s
+    idle: 30s
+  read_buffersize:  4096
+  write_buffersize: 4096
+  disable_keepalive: false
+  stream_request_body: false
+  get_only: false
+  http_methods: [get]
+  views:
+    layout: ""

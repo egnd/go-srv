@@ -1,0 +1,13 @@
+version: "3"
+services:
+  go-srv:
+    image: egnd/go-srv:local
+    build:
+      context: .
+      args:
+        TARGETOS: ${GOOS}
+        TARGETARCH: ${GOARCH}
+    volumes:
+    - ./configs/go-srv.override.yml:/configs/go-srv.override.yml:ro
+    ports:
+    - 8080:8080

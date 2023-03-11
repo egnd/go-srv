@@ -1,0 +1,32 @@
+// https://aka.ms/devcontainer.json
+// https://github.com/devcontainers/templates/tree/main/src/go
+{
+	"name": "Go",
+	"build": {
+		"context": "../",
+		"dockerfile": "Dockerfile"
+	},
+	"containerEnv": {
+		"TZ": "Europe/Moscow"
+	},
+	"customizations": {
+		"vscode": {
+			// "settings": {
+			// 	"go.toolsManagement.checkForUpdates": "local",
+			// 	"go.useLanguageServer": true,
+			// 	"go.gopath": "/go"
+			// },
+			"extensions": [
+				"golang.Go",
+				"ms-azuretools.vscode-docker",
+				"codezombiech.gitignore",
+				"wayou.vscode-todo-highlight",
+				"mikestead.dotenv",
+				"redhat.vscode-yaml",
+				"bungcip.better-toml",
+				"ms-vscode.makefile-tools"
+			]
+		}
+	},
+	"remoteUser": "root"
+}

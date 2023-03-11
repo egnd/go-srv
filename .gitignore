@@ -1,0 +1,5 @@
+/.profiles
+/bin
+/configs/*.override.*
+/var
+/*.override.*
