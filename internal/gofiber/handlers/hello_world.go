@@ -1,4 +1,4 @@
-package fiber
+package handlers
 
 import (
 	"github.com/egnd/go-srv/internal/ctxtools"

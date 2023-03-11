@@ -1,4 +1,4 @@
-package services
+package gofiber
 
 import (
 	"context"
@@ -15,11 +15,11 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/egnd/go-srv/internal/ctxtools"
-	handlers "github.com/egnd/go-srv/internal/handlers/fiber"
-	middlewares "github.com/egnd/go-srv/internal/middlewares/fiber"
+	"github.com/egnd/go-srv/internal/gofiber/handlers"
+	"github.com/egnd/go-srv/internal/gofiber/middlewares"
 )
 
-type GoFiber struct {
+type goFiber struct {
 	debug    bool
 	disabled bool
 	ctx      context.Context
@@ -28,30 +28,29 @@ type GoFiber struct {
 	server   *fiber.App
 }
 
-func NewGoFiber(ctx context.Context, cfg *viper.Viper, logger logr.Logger) *GoFiber {
-	return (&GoFiber{
-		debug:    cfg.GetBool("debug"),
-		disabled: cfg.GetBool("disabled"),
+func New(ctx context.Context, cfg *viper.Viper, logger logr.Logger) *goFiber {
+	return (&goFiber{
 		ctx:      ctx,
 		cfg:      cfg,
 		logger:   logger,
-	}).initServer().registerMiddlewares().registerHandlers()
+		debug:    cfg.GetBool("debug"),
+		disabled: cfg.GetBool("disabled"),
+	}).initServer().setMiddlewares().setHandlers()
 }
 
-func (srv *GoFiber) Start() error {
+func (srv *goFiber) Start() error {
 	if srv.disabled {
 		srv.logger.Info("is disabled")
 
 		return nil
 	}
 
-	addr := fmt.Sprintf(":%d", srv.cfg.GetInt("port"))
-	srv.logger.Info("starting...", "addr", addr)
+	srv.logger.Info("starting...", "port", srv.cfg.GetInt("port"))
 
-	return srv.server.Listen(addr)
+	return srv.server.Listen(fmt.Sprintf(":%d", srv.cfg.GetInt("port")))
 }
 
-func (srv *GoFiber) Stop() error {
+func (srv *goFiber) Stop() error {
 	if srv.disabled {
 		return nil
 	}
@@ -59,8 +58,8 @@ func (srv *GoFiber) Stop() error {
 	return srv.server.Shutdown()
 }
 
-func (srv *GoFiber) initServer() *GoFiber {
-	cfg := fiber.Config{
+func (srv *goFiber) initServer() *goFiber {
+	srv.server = fiber.New(fiber.Config{
 		Concurrency:           srv.cfg.GetInt("concurrency"),
 		ReadBufferSize:        srv.cfg.GetInt("read_buffersize"),
 		WriteBufferSize:       srv.cfg.GetInt("write_buffersize"),
@@ -82,29 +81,28 @@ func (srv *GoFiber) initServer() *GoFiber {
 		RequestMethods:        srv.cfg.GetStringSlice("http_methods"),
 		JSONEncoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Marshal,
 		JSONDecoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal,
-	}
-
-	// fiberCfg.Views = ??
-	cfg.ErrorHandler = func(ctx *fiber.Ctx, err error) error {
-		code := fiber.StatusInternalServerError
-
-		var e *fiber.Error
-		if errors.As(err, &e) {
-			code = e.Code
-		}
-
-		ctxtools.GetLogger(ctx.UserContext()).Error(err, "handler err", "http_code", code)
-		ctx.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
-
-		return ctx.SendStatus(code)
-	}
-
-	srv.server = fiber.New(cfg)
+		ErrorHandler:          srv.errorHandler,
+		// Views: ???,
+	})
 
 	return srv
 }
 
-func (srv *GoFiber) registerMiddlewares() *GoFiber {
+func (srv *goFiber) errorHandler(ctx *fiber.Ctx, err error) error {
+	code := fiber.StatusInternalServerError
+
+	var e *fiber.Error
+	if errors.As(err, &e) {
+		code = e.Code
+	}
+
+	ctxtools.GetLogger(ctx.UserContext()).Error(err, "handler err", "http_code", code)
+	ctx.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
+
+	return ctx.SendStatus(code)
+}
+
+func (srv *goFiber) setMiddlewares() *goFiber {
 	srv.server.Use(
 		favicon.New(),
 		pprof.New(),
@@ -116,8 +114,10 @@ func (srv *GoFiber) registerMiddlewares() *GoFiber {
 	return srv
 }
 
-func (srv *GoFiber) registerHandlers() *GoFiber {
+func (srv *goFiber) setHandlers() *goFiber {
 	srv.server.Get("/", handlers.HelloWorld())
+	// @TODO: /live
+	// @TODO: /metrics
 
 	if srv.debug {
 		srv.server.Get("/debug/dashboard", monitor.New(monitor.Config{Title: srv.server.Config().AppName}))

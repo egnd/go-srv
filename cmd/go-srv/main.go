@@ -7,7 +7,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/egnd/go-srv/internal/services"
+	"github.com/egnd/go-srv/internal/gofiber"
 	"github.com/egnd/go-toolbox/config"
 	"github.com/egnd/go-toolbox/graceful"
 	"github.com/egnd/go-toolbox/logging"
@@ -43,7 +43,7 @@ func main() {
 		UseEnv: true, EnvPrefix: "go-srv",
 	})
 	logger := logging.NewZerolog(logging.NewZerologCfgViper(cfg.Sub("logs")), os.Stderr)
-	httpServer := services.NewGoFiber(ctx,
+	httpServer := gofiber.New(ctx,
 		cfg.Sub("server"), zerologr.New(&logger).WithName("httpserv"),
 	)
 

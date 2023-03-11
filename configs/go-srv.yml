@@ -32,6 +32,6 @@ server:
   disable_keepalive: false
   stream_request_body: false
   get_only: false
-  http_methods: [get]
+  http_methods: [GET, HEAD]
   views:
     layout: ""

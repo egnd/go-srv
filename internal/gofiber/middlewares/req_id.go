@@ -1,4 +1,4 @@
-package fiber
+package middlewares
 
 import (
 	"github.com/egnd/go-srv/internal/ctxtools"
