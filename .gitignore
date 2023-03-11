@@ -1,5 +1,5 @@
 /.profiles
 /bin
 /configs/*.override.*
-/var
+/vendor
 /*.override.*
