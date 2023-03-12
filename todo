@@ -1,4 +1,3 @@
-- prom metrics
 - liveness probe
 - github actions
 - gitlab ci
