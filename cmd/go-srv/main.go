@@ -44,7 +44,7 @@ func main() {
 	})
 	logger := logging.NewZerolog(logging.NewZerologCfgViper(cfg.Sub("logs")), os.Stderr)
 	httpServer := gofiber.New(ctx,
-		cfg.Sub("gofiber"), zerologr.New(&logger).WithName("httpserv"),
+		cfg.Sub("gofiber"), zerologr.New(&logger).WithName("httpserv"), version,
 	)
 
 	graceful.Register(httpServer.Start, httpServer.Stop)

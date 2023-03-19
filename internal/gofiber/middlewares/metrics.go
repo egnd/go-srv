@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Metrics(metricsOpt victoria.Opts, skip ...SkipFunc) fiber.Handler {
+func HTTPMetrics(metricsOpt victoria.Opts, skip ...SkipFunc) fiber.Handler {
 	httpReqsOpt := metricsOpt
 	httpReqsOpt.Name = "req_cnt"
 	httpReqs := victoria.NewIncrement(httpReqsOpt, "method", "uri")

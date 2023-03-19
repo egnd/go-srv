@@ -12,19 +12,21 @@ import (
 type goFiber struct {
 	debug    bool
 	disabled bool
+	version  string
 	ctx      context.Context
 	cfg      *viper.Viper
 	logger   logr.Logger
 	server   *fiber.App
 }
 
-func New(ctx context.Context, cfg *viper.Viper, logger logr.Logger) *goFiber {
+func New(ctx context.Context, cfg *viper.Viper, logger logr.Logger, version string) *goFiber {
 	return (&goFiber{
 		ctx:      ctx,
 		cfg:      cfg,
 		logger:   logger,
 		debug:    cfg.GetBool("debug"),
 		disabled: cfg.GetBool("disabled"),
+		version:  version,
 	}).initServer().setMiddlewares().setHandlers()
 }
 

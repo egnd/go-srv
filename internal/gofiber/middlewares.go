@@ -15,24 +15,24 @@ import (
 func (srv *goFiber) setMiddlewares() *goFiber {
 	srv.server.Use(
 		favicon.New(),
-		pprof.New(),
 		middlewares.RequestID(),
 		middlewares.Logging(srv.logger),
-		middlewares.Metrics(victoria.Opts{Namespace: "gosrv", Subsystem: "gofiber"},
-			func(ctx *fiber.Ctx) (skip bool) {
-				reqURI := string(ctx.Request().RequestURI())
-				switch {
+		middlewares.HTTPMetrics(victoria.Opts{Namespace: "gosrv", Subsystem: "gofiber"},
+			func(ctx *fiber.Ctx) bool {
+				switch reqURI := string(ctx.Request().RequestURI()); {
 				case strings.HasPrefix(reqURI, "/metrics"):
-					skip = true
+					return true
 				case strings.HasPrefix(reqURI, "/debug/"):
-					skip = true
+					return true
+				default:
+					return false
 				}
-
-				return
 			},
 		),
 		recover.New(recover.Config{EnableStackTrace: srv.debug}),
 	)
+
+	srv.server.Use("/debug/pprof/*", pprof.New())
 
 	return srv
 }

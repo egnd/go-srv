@@ -8,8 +8,9 @@ import (
 
 func (srv *goFiber) setHandlers() *goFiber {
 	srv.server.Get("/", handlers.HelloWorld())
+
 	srv.server.Get("/metrics", handlers.PromMetrics)
-	// @TODO: /live
+	srv.server.Get("/live", handlers.LiveProbe(srv.version))
 
 	if srv.debug {
 		srv.server.Get("/debug/dashboard", monitor.New(monitor.Config{Title: srv.server.Config().AppName}))
