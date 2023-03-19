@@ -1,10 +1,13 @@
 module github.com/egnd/go-srv
 
-go 1.19
+go 1.20
 
 require (
 	github.com/VictoriaMetrics/metrics v1.23.1
-	github.com/egnd/go-toolbox v1.7.1
+	github.com/egnd/go-toolbox/config v1.8.0
+	github.com/egnd/go-toolbox/graceful v1.8.0
+	github.com/egnd/go-toolbox/logging v1.8.0
+	github.com/egnd/go-toolbox/metrics v1.8.1
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zerologr v1.2.3
 	github.com/gofiber/fiber/v2 v2.42.0

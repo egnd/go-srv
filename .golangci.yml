@@ -1,7 +1,6 @@
 ---
 # https://github.com/golangci/golangci-lint#configuration
 run:
-  go: "1.19"
   deadline: 5m
   concurency: 4
   timeout: 1m
